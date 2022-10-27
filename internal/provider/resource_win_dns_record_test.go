@@ -27,7 +27,7 @@ variable "windns_record_name" {}
 
 resource "windns_record" "r1" {
   name      = var.windns_record_name
-  zone_name = "felles.ds.nrk.no"
+  zone_name = "example.com"
   type      = "A"
   records   = ["203.0.113.11", "203.0.113.12"]
 }
@@ -38,7 +38,7 @@ variable "windns_record_name" {}
 
 resource "windns_record" "r1" {
   name      = var.windns_record_name
-  zone_name = "felles.ds.nrk.no"
+  zone_name = "example.com"
   type      = "AAAA"
   records   = ["2001:db8::1", "2001:db8::2"]
 }
@@ -49,7 +49,7 @@ variable "windns_record_name" {}
 
 resource "windns_record" "r1" {
   name      = var.windns_record_name
-  zone_name = "felles.ds.nrk.no"
+  zone_name = "example.com"
   type      = "TXT"
   records   = ["TxTdAtA"]
 }
@@ -60,21 +60,21 @@ variable "windns_record_name" {}
 
 resource "windns_record" "r1" {
   name      = var.windns_record_name
-  zone_name = "felles.ds.nrk.no"
+  zone_name = "example.com"
   type      = "A"
   records   = ["203.0.113.11", "203.0.113.12"]
 }
 
 resource "windns_record" "r2" {
   name      = var.windns_record_name
-  zone_name = "felles.ds.nrk.no"
+  zone_name = "example.com"
   type      = "AAAA"
   records   = ["2001:db8::1"]
 }
 
 resource "windns_record" "r3" {
   name      = var.windns_record_name
-  zone_name = "felles.ds.nrk.no"
+  zone_name = "example.com"
   type      = "TXT"
   records   = ["TXTDATA"]
 }
@@ -85,21 +85,21 @@ variable "windns_record_name" {}
 
 resource "windns_record" "r1" {
   name      = var.windns_record_name
-  zone_name = "felles.ds.nrk.no"
+  zone_name = "example.com"
   type      = "A"
   records   = ["203.0.113.21", "203.0.113.22"]
 }
 
 resource "windns_record" "r2" {
   name      = var.windns_record_name
-  zone_name = "felles.ds.nrk.no"
+  zone_name = "example.com"
   type      = "AAAA"
   records   = ["2001:db8::2"]
 }
 
 resource "windns_record" "r3" {
   name      = var.windns_record_name
-  zone_name = "felles.ds.nrk.no"
+  zone_name = "example.com"
   type      = "TXT"
   records   = ["UPDATED_DATA"]
 }
