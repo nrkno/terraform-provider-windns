@@ -2,13 +2,14 @@
 
 This provider allows Terraform to manage DNS records in a Windows DNS server.
 
-This provider utilizes SSH as the transport from the machine running Terraform to jump host, or the DNS server itself
-where Powershell commands are issues towards the DNS Server.
+Other Terraform providers have implemented similar functionality, but they either require a local Windows installation
+with Powershell or utilize WinRM to execute Powershell remotely. Both these things are not preferable.
 
-Other providers offer WinDNS provisioning but rely on WinRM as transport. SSH is used instead in this provider to avoid WinRM double-hop issues when you don't want to expose WinRM directly
-on your domain controller, for instance.
+This provider supports all Terraform platforms and avoids WinRM limitations by using SSH as the transport.
+This provider establishes the SSH transport to a (Windows) jump server running Powershell with the DNSServer module 
+installed or directly to the server running the DNS server.
 
-
+If the DNS server is running on a Domain Controller, you may not want to log in directly to that server.
 
 ## Getting started
 
@@ -25,11 +26,12 @@ terraform {
 }
 
 provider "windns" {
-  # configured by environment
-  # WINDNS_SSH_USERNAME
-  # WINDNS_SSH_PASSWORD
-  # WINDNS_SSH_HOSTNAME
-  # WINDNS_DNS_SERVER_HOSTNAME
+  ssh_username = "someuser"      # (environment variable WINDNS_SSH_USERNAME)
+  ssh_password = "somepassword"  # (environment variable WINDNS_SSH_PASSWORD)
+  ssh_hostname = "somehost"      # (environment variable WINDNS_SSH_HOSTNAME)
+  
+  # Optional
+  dns_server   = "someserver"    # (environment variable WINDNS_DNS_SERVER_HOSTNAME) 
 }
 
 resource "windns_record" "r" {
