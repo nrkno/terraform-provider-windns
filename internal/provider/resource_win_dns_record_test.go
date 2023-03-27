@@ -23,10 +23,8 @@ Prerequisites for acceptance tests
 */
 
 const testAccResourceDNSRecordConfigBasicPTR = `
-variable "windns_record_name" {}
-
 resource "windns_record" "r1" {
-  name      = "120.120"
+  name      = "12.113"
   zone_name = "10.10.in-addr.arpa"
   type      = "PTR"
   records   = ["example-host.example.com."]
