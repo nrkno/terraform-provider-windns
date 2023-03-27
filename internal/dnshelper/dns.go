@@ -5,10 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/nrkno/terraform-provider-windns/internal/config"
-	"strings"
 )
 
 const (
@@ -118,7 +119,6 @@ func GetDNSRecordFromId(ctx context.Context, conf *config.ProviderConf, id strin
 
 // Create creates a new DNSRecord object in DNS server
 func (r *Record) Create(conf *config.ProviderConf) (string, error) {
-
 	if r.ZoneName == "" {
 		return "", fmt.Errorf("DNSRecord.Create: missing zone_name variable")
 	}

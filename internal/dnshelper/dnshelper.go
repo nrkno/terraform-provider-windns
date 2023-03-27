@@ -1,8 +1,9 @@
 package dnshelper
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func SanitiseTFInput(d *schema.ResourceData, key string) string {

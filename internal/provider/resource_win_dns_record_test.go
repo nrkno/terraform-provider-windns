@@ -3,12 +3,13 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/nrkno/terraform-provider-windns/internal/config"
 	"github.com/nrkno/terraform-provider-windns/internal/dnshelper"
-	"strings"
-	"testing"
 )
 
 const testAccResourceDNSRecordConfigBasicPTR = `

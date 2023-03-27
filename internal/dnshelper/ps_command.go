@@ -3,9 +3,10 @@ package dnshelper
 import (
 	"bytes"
 	"fmt"
+	"strings"
+
 	"github.com/nrkno/terraform-provider-windns/internal/config"
 	"golang.org/x/crypto/ssh"
-	"strings"
 
 	"github.com/masterzen/winrm"
 )
@@ -102,18 +103,4 @@ type PSCommandResult struct {
 	Stdout   string
 	StdErr   string
 	ExitCode int
-}
-
-type psString string
-
-func (s *psString) UnmarshalText(text []byte) error {
-	str := string(text)
-	str = strings.TrimSpace(str)
-	if str[0] == '+' && len(str) > 2 {
-		*s = psString(fmt.Sprintf("\n%s", str[2:]))
-	} else {
-		*s = psString(str)
-	}
-
-	return nil
 }

@@ -2,9 +2,10 @@ package provider
 
 import (
 	"context"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/nrkno/terraform-provider-windns/internal/config"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )

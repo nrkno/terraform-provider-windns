@@ -1,9 +1,10 @@
 package config
 
 import (
+	"sync"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/melbahja/goph"
-	"sync"
 )
 
 type Settings struct {
