@@ -130,3 +130,9 @@ func resourceDNSRecordDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 	return nil
 }
+
+func suppressCaseDiff(k, old, new string, d *schema.ResourceData) bool {
+	// k is ignored here, but wee need to include it in the function's
+	// signature in order to match the one defined for DiffSuppressFunc
+	return strings.EqualFold(old, new)
+}

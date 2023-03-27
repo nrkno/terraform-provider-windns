@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/nrkno/terraform-provider-windns/internal/config"
@@ -57,10 +56,4 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (any, diag.D
 	}
 	pcfg := config.NewProviderConf(cfg)
 	return pcfg, nil
-}
-
-func suppressCaseDiff(k, old, new string, d *schema.ResourceData) bool {
-	// k is ignored here, but wee need to include it in the function's
-	// signature in order to match the one defined for DiffSuppressFunc
-	return strings.EqualFold(old, new)
 }
