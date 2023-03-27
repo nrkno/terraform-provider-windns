@@ -1,11 +1,14 @@
 .PHONY: build testacc fmtcheck
 
-build: fmtcheck
+build: fmt
 	go install
 
 testacc:
 	TF_ACC=1 go test ./...
 
-fmtcheck:
-	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
+fmt:
+	go run mvdan.cc/gofumpt -w ./
 
+check:
+	go run honnef.co/go/tools/cmd/staticcheck ./...
+	go run golang.org/x/vuln/cmd/govulncheck -v ./...
