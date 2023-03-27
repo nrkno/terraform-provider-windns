@@ -12,6 +12,16 @@ import (
 	"github.com/nrkno/terraform-provider-windns/internal/dnshelper"
 )
 
+/*
+Prerequisites for acceptance tests
+
+- A Windows DNS server with the following zones configured:
+	- example.com
+	- 10.10.in-addr.arpa
+- A Windows server with SSH enabled and the Powershell DnsServer module installed.
+	- This could be the same as running the DNS server, or another to jump through.
+*/
+
 const testAccResourceDNSRecordConfigBasicPTR = `
 variable "windns_record_name" {}
 
