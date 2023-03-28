@@ -8,6 +8,7 @@ require (
 	github.com/masterzen/winrm v0.0.0-20220917170901-b07f6cb0598d
 	github.com/melbahja/goph v1.3.1
 	golang.org/x/crypto v0.7.0
+	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	golang.org/x/vuln v0.0.0-20230325131008-9550759f8614
 	honnef.co/go/tools v0.4.3
 	mvdan.cc/gofumpt v0.4.0
