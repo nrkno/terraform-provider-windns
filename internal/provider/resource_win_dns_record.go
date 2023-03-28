@@ -154,13 +154,14 @@ func suppressRecordDiff(key, old, new string, d *schema.ResourceData) bool {
 		return false
 	}
 
+	rrType := d.Get("type")
 	oldRecords := setToStringSlice(oldData.(*schema.Set))
 	newRecords := setToStringSlice(newData.(*schema.Set))
 
-	if d.Get("type") == dnshelper.RecordTypePTR {
-		return suppressPTRDiff(oldRecords, newRecords)
+	if rrType == dnshelper.RecordTypePTR || rrType == dnshelper.RecordTypeCNAME {
+		return suppressDotDiff(oldRecords, newRecords)
 	}
-	if d.Get("type") == dnshelper.RecordTypeAAAA {
+	if rrType == dnshelper.RecordTypeAAAA {
 		return suppressAAAADiff(oldRecords, newRecords)
 	}
 	return strings.EqualFold(old, new)
@@ -176,7 +177,7 @@ func suppressAAAADiff(oldRecords, newRecords []string) bool {
 
 // Get-DNSResourceRecord always adds a `.` after the PTR record.
 // To avoid change if the user did not add it, we need to add it before we compare.
-func suppressPTRDiff(oldRecords, newRecords []string) bool {
+func suppressDotDiff(oldRecords, newRecords []string) bool {
 	var newRecordsWithDot []string
 
 	for _, v := range newRecords {
