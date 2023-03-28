@@ -31,6 +31,15 @@ resource "windns_record" "r1" {
 }
 `
 
+const testAccResourceDNSRecordConfigBasicPTRwithoutDot = `
+resource "windns_record" "r1" {
+  name      = "12.113"
+  zone_name = "10.10.in-addr.arpa"
+  type      = "PTR"
+  records   = ["example-host.example.com"]
+}
+`
+
 const testAccResourceDNSRecordConfigBasicA = `
 variable "windns_record_name" {}
 
@@ -126,6 +135,31 @@ func TestAccResourceDNSRecord_BasicPTR(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceDNSRecordConfigBasicPTR,
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceDNSRecordExists("windns_record.r1", "example-host.example.com.", dnshelper.RecordTypePTR, true),
+				),
+			},
+			{
+				ResourceName:      "windns_record.r1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccResourceDNSRecord_BasicPTRwithoutDot(t *testing.T) {
+	envVars := []string{"TF_VAR_windns_record_name"}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t, envVars) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccResourceDNSRecordExists("windns_record.r1", "example-host.example.com.", dnshelper.RecordTypePTR, false),
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceDNSRecordConfigBasicPTRwithoutDot,
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceDNSRecordExists("windns_record.r1", "example-host.example.com.", dnshelper.RecordTypePTR, true),
 				),

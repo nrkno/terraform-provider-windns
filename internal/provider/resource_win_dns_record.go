@@ -2,7 +2,10 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"strings"
+
+	"golang.org/x/exp/slices"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -41,9 +44,10 @@ func resourceDNSRecord() *schema.Resource {
 				Description:      "The type of the dns records.",
 			},
 			"records": {
-				Type:        schema.TypeSet,
-				Required:    true,
-				Description: "A list of records.",
+				Type:             schema.TypeSet,
+				Required:         true,
+				Description:      "A list of records.",
+				DiffSuppressFunc: suppressRecordDiff,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -131,8 +135,40 @@ func resourceDNSRecordDelete(ctx context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func suppressCaseDiff(k, old, new string, d *schema.ResourceData) bool {
+func suppressCaseDiff(key, old, new string, d *schema.ResourceData) bool {
 	// k is ignored here, but wee need to include it in the function's
 	// signature in order to match the one defined for DiffSuppressFunc
+	return strings.EqualFold(old, new)
+}
+
+func suppressRecordDiff(key, old, new string, d *schema.ResourceData) bool {
+	if d.Get("type") == dnshelper.RecordTypePTR {
+		var (
+			oldRecords []string
+			newRecords []string
+		)
+
+		// For a list, the key is path to the element, rather than the list.
+		// E.g. "windns_record.2.records.0"
+		lastDotIndex := strings.LastIndex(key, ".")
+		if lastDotIndex != -1 {
+			key = key[:lastDotIndex]
+		}
+
+		oldData, newData := d.GetChange(key)
+		if oldData == nil || newData == nil {
+			return false
+		}
+
+		for _, v := range oldData.(*schema.Set).List() {
+			oldRecords = append(oldRecords, fmt.Sprintf("%s", v))
+		}
+		// Get-DNSResourceRecord always adds a `.` after the PTR record.
+		// to avoid change if the user did not add it, we need to add it before we compare.
+		for _, v := range newData.(*schema.Set).List() {
+			newRecords = append(newRecords, fmt.Sprintf("%s.", v))
+		}
+		return slices.Equal(oldRecords, newRecords)
+	}
 	return strings.EqualFold(old, new)
 }
