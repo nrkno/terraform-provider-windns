@@ -142,33 +142,53 @@ func suppressCaseDiff(key, old, new string, d *schema.ResourceData) bool {
 }
 
 func suppressRecordDiff(key, old, new string, d *schema.ResourceData) bool {
+	// For a list, the key is path to the element, rather than the list.
+	// E.g. "windns_record.2.records.0"
+	lastDotIndex := strings.LastIndex(key, ".")
+	if lastDotIndex != -1 {
+		key = key[:lastDotIndex]
+	}
+
+	oldData, newData := d.GetChange(key)
+	if oldData == nil || newData == nil {
+		return false
+	}
+
+	oldRecords := setToStringSlice(oldData.(*schema.Set))
+	newRecords := setToStringSlice(newData.(*schema.Set))
+
 	if d.Get("type") == dnshelper.RecordTypePTR {
-		var (
-			oldRecords []string
-			newRecords []string
-		)
-
-		// For a list, the key is path to the element, rather than the list.
-		// E.g. "windns_record.2.records.0"
-		lastDotIndex := strings.LastIndex(key, ".")
-		if lastDotIndex != -1 {
-			key = key[:lastDotIndex]
-		}
-
-		oldData, newData := d.GetChange(key)
-		if oldData == nil || newData == nil {
-			return false
-		}
-
-		for _, v := range oldData.(*schema.Set).List() {
-			oldRecords = append(oldRecords, fmt.Sprintf("%s", v))
-		}
-		// Get-DNSResourceRecord always adds a `.` after the PTR record.
-		// to avoid change if the user did not add it, we need to add it before we compare.
-		for _, v := range newData.(*schema.Set).List() {
-			newRecords = append(newRecords, fmt.Sprintf("%s.", v))
-		}
-		return slices.Equal(oldRecords, newRecords)
+		return suppressPTRDiff(oldRecords, newRecords)
+	}
+	if d.Get("type") == dnshelper.RecordTypeAAAA {
+		return suppressAAAADiff(oldRecords, newRecords)
 	}
 	return strings.EqualFold(old, new)
+}
+
+// Get-DNSResourceRecord always returns AAAA records in lower case.
+// To avoid change if a user used uppercase, we ignore case.
+func suppressAAAADiff(oldRecords, newRecords []string) bool {
+	return slices.EqualFunc(oldRecords, newRecords, func(old, new string) bool {
+		return strings.EqualFold(old, new)
+	})
+}
+
+// Get-DNSResourceRecord always adds a `.` after the PTR record.
+// To avoid change if the user did not add it, we need to add it before we compare.
+func suppressPTRDiff(oldRecords, newRecords []string) bool {
+	var newRecordsWithDot []string
+
+	for _, v := range newRecords {
+		newRecordsWithDot = append(newRecordsWithDot, fmt.Sprintf("%s.", v))
+	}
+	return slices.Equal(oldRecords, newRecordsWithDot)
+}
+
+func setToStringSlice(d *schema.Set) []string {
+	var data []string
+	for _, v := range d.List() {
+		data = append(data, fmt.Sprintf("%s", v))
+	}
+	return data
 }

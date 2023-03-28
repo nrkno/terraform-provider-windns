@@ -31,7 +31,7 @@ resource "windns_record" "r1" {
 }
 `
 
-const testAccResourceDNSRecordConfigBasicPTRwithoutDot = `
+const testAccResourceDSRRecordConfigPTRWithoutDot = `
 resource "windns_record" "r1" {
   name      = "12.113"
   zone_name = "10.10.in-addr.arpa"
@@ -59,6 +59,17 @@ resource "windns_record" "r1" {
   zone_name = "example.com"
   type      = "AAAA"
   records   = ["2001:db8::1", "2001:db8::2"]
+}
+`
+
+const testAccResourceDNSRecordConfigUpperAAAA = `
+variable "windns_record_name" {}
+
+resource "windns_record" "r1" {
+  name      = var.windns_record_name
+  zone_name = "example.com"
+  type      = "AAAA"
+  records   = ["2001:DB8::1", "2001:DB8::2"]
 }
 `
 
@@ -148,7 +159,7 @@ func TestAccResourceDNSRecord_BasicPTR(t *testing.T) {
 	})
 }
 
-func TestAccResourceDNSRecord_BasicPTRwithoutDot(t *testing.T) {
+func TestAccResourceDSRRecord_BasicPTRWithoutDot(t *testing.T) {
 	envVars := []string{"TF_VAR_windns_record_name"}
 
 	resource.Test(t, resource.TestCase{
@@ -159,7 +170,7 @@ func TestAccResourceDNSRecord_BasicPTRwithoutDot(t *testing.T) {
 		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceDNSRecordConfigBasicPTRwithoutDot,
+				Config: testAccResourceDSRRecordConfigPTRWithoutDot,
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceDNSRecordExists("windns_record.r1", "example-host.example.com.", dnshelper.RecordTypePTR, true),
 				),
@@ -210,6 +221,31 @@ func TestAccResourceDNSRecord_BasicAAAA(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceDNSRecordConfigBasicAAAA,
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceDNSRecordExists("windns_record.r1", "2001:db8::1", dnshelper.RecordTypeAAAA, true),
+				),
+			},
+			{
+				ResourceName:      "windns_record.r1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccResourceDNSRecord_UpperAAAA(t *testing.T) {
+	envVars := []string{"TF_VAR_windns_record_name"}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t, envVars) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccResourceDNSRecordExists("windns_record.r1", "2001:db8::1", dnshelper.RecordTypeAAAA, false),
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceDNSRecordConfigUpperAAAA,
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceDNSRecordExists("windns_record.r1", "2001:db8::1", dnshelper.RecordTypeAAAA, true),
 				),
