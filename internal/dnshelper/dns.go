@@ -200,7 +200,7 @@ func (r *Record) addRecordData(conf *config.ProviderConf, recordData string) err
 	} else if r.RecordType == RecordTypePTR {
 		cmd = fmt.Sprintf("%s -PtrDomainName %s", cmd, recordData)
 	} else if r.RecordType == RecordTypeCNAME {
-		return fmt.Errorf("record type %s is not supported", r.RecordType)
+		cmd = fmt.Sprintf("%s -HostNameAlias %s", cmd, recordData)
 	} else {
 		return fmt.Errorf("record type %s is not supported", r.RecordType)
 	}

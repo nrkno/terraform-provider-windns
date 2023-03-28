@@ -134,6 +134,17 @@ resource "windns_record" "r3" {
 }
 `
 
+const testAccResourceDNSRecordConfigCNAME = `
+variable "windns_record_name" {}
+
+resource "windns_record" "r1" {
+  name      = var.windns_record_name
+  zone_name = "example.com"
+  type      = "CNAME"
+  records   = ["cname.example.com"]
+}
+`
+
 func TestAccResourceDNSRecord_BasicPTR(t *testing.T) {
 	envVars := []string{"TF_VAR_windns_record_name"}
 
@@ -350,6 +361,31 @@ func TestAccResourceDNSRecord_MultipleUpdated(t *testing.T) {
 					testAccResourceDNSRecordExists("windns_record.r2", "2001:db8::2", dnshelper.RecordTypeAAAA, true),
 					testAccResourceDNSRecordExists("windns_record.r3", "UPDATED_DATA", dnshelper.RecordTypeTXT, true),
 				),
+			},
+		},
+	})
+}
+
+func TestAccResourceDNSRecord_CNAME(t *testing.T) {
+	envVars := []string{"TF_VAR_windns_record_name"}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t, envVars) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccResourceDNSRecordExists("windns_record.r1", "cname.example.com", dnshelper.RecordTypeCNAME, false),
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceDNSRecordConfigCNAME,
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceDNSRecordExists("windns_record.r1", "cname.example.com.", dnshelper.RecordTypeCNAME, true),
+				),
+			},
+			{
+				ResourceName:      "windns_record.r1",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
