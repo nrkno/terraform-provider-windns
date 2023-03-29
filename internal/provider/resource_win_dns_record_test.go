@@ -152,13 +152,13 @@ func TestAccResourceDNSRecord_BasicPTR(t *testing.T) {
 		PreCheck:          func() { testAccPreCheck(t, envVars) },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
-			testAccResourceDNSRecordExists("windns_record.r1", "example-host.example.com.", dnshelper.RecordTypePTR, false),
+			testAccResourceDNSRecordExists("windns_record.r1", []string{"example-host.example.com."}, dnshelper.RecordTypePTR, false),
 		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceDNSRecordConfigBasicPTR,
 				Check: resource.ComposeTestCheckFunc(
-					testAccResourceDNSRecordExists("windns_record.r1", "example-host.example.com.", dnshelper.RecordTypePTR, true),
+					testAccResourceDNSRecordExists("windns_record.r1", []string{"example-host.example.com."}, dnshelper.RecordTypePTR, true),
 				),
 			},
 			{
@@ -177,13 +177,13 @@ func TestAccResourceDSRRecord_BasicPTRWithoutDot(t *testing.T) {
 		PreCheck:          func() { testAccPreCheck(t, envVars) },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
-			testAccResourceDNSRecordExists("windns_record.r1", "example-host.example.com.", dnshelper.RecordTypePTR, false),
+			testAccResourceDNSRecordExists("windns_record.r1", []string{"example-host.example.com"}, dnshelper.RecordTypePTR, false),
 		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceDSRRecordConfigPTRWithoutDot,
 				Check: resource.ComposeTestCheckFunc(
-					testAccResourceDNSRecordExists("windns_record.r1", "example-host.example.com.", dnshelper.RecordTypePTR, true),
+					testAccResourceDNSRecordExists("windns_record.r1", []string{"example-host.example.com"}, dnshelper.RecordTypePTR, true),
 				),
 			},
 			{
@@ -202,13 +202,13 @@ func TestAccResourceDNSRecord_BasicA(t *testing.T) {
 		PreCheck:          func() { testAccPreCheck(t, envVars) },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
-			testAccResourceDNSRecordExists("windns_record.r1", "203.0.113.11", dnshelper.RecordTypeA, false),
+			testAccResourceDNSRecordExists("windns_record.r1", []string{"203.0.113.11", "203.0.113.12"}, dnshelper.RecordTypeA, false),
 		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceDNSRecordConfigBasicA,
 				Check: resource.ComposeTestCheckFunc(
-					testAccResourceDNSRecordExists("windns_record.r1", "203.0.113.11", dnshelper.RecordTypeA, true),
+					testAccResourceDNSRecordExists("windns_record.r1", []string{"203.0.113.11", "203.0.113.12"}, dnshelper.RecordTypeA, true),
 				),
 			},
 			{
@@ -227,13 +227,13 @@ func TestAccResourceDNSRecord_BasicAAAA(t *testing.T) {
 		PreCheck:          func() { testAccPreCheck(t, envVars) },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
-			testAccResourceDNSRecordExists("windns_record.r1", "2001:db8::1", dnshelper.RecordTypeAAAA, false),
+			testAccResourceDNSRecordExists("windns_record.r1", []string{"2001:db8::1", "2001:db8::2"}, dnshelper.RecordTypeAAAA, false),
 		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceDNSRecordConfigBasicAAAA,
 				Check: resource.ComposeTestCheckFunc(
-					testAccResourceDNSRecordExists("windns_record.r1", "2001:db8::1", dnshelper.RecordTypeAAAA, true),
+					testAccResourceDNSRecordExists("windns_record.r1", []string{"2001:db8::1", "2001:db8::2"}, dnshelper.RecordTypeAAAA, true),
 				),
 			},
 			{
@@ -252,13 +252,13 @@ func TestAccResourceDNSRecord_UpperAAAA(t *testing.T) {
 		PreCheck:          func() { testAccPreCheck(t, envVars) },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
-			testAccResourceDNSRecordExists("windns_record.r1", "2001:db8::1", dnshelper.RecordTypeAAAA, false),
+			testAccResourceDNSRecordExists("windns_record.r1", []string{"2001:db8::1", "2001:db8::2"}, dnshelper.RecordTypeAAAA, false),
 		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceDNSRecordConfigUpperAAAA,
 				Check: resource.ComposeTestCheckFunc(
-					testAccResourceDNSRecordExists("windns_record.r1", "2001:db8::1", dnshelper.RecordTypeAAAA, true),
+					testAccResourceDNSRecordExists("windns_record.r1", []string{"2001:db8::1", "2001:db8::2"}, dnshelper.RecordTypeAAAA, true),
 				),
 			},
 			{
@@ -277,13 +277,13 @@ func TestAccResourceDNSRecord_BasicTXT(t *testing.T) {
 		PreCheck:          func() { testAccPreCheck(t, envVars) },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
-			testAccResourceDNSRecordExists("windns_record.r1", "TxTdAtA", dnshelper.RecordTypeTXT, false),
+			testAccResourceDNSRecordExists("windns_record.r1", []string{"TxTdAtA"}, dnshelper.RecordTypeTXT, false),
 		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceDNSRecordConfigBasicTXT,
 				Check: resource.ComposeTestCheckFunc(
-					testAccResourceDNSRecordExists("windns_record.r1", "TxTdAtA", dnshelper.RecordTypeTXT, true),
+					testAccResourceDNSRecordExists("windns_record.r1", []string{"TxTdAtA"}, dnshelper.RecordTypeTXT, true),
 				),
 			},
 			{
@@ -302,17 +302,17 @@ func TestAccResourceDNSRecord_Multiple(t *testing.T) {
 		PreCheck:          func() { testAccPreCheck(t, envVars) },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
-			testAccResourceDNSRecordExists("windns_record.r1", "203.0.113.11", dnshelper.RecordTypeA, false),
-			testAccResourceDNSRecordExists("windns_record.r2", "2001:db8::1", dnshelper.RecordTypeAAAA, false),
-			testAccResourceDNSRecordExists("windns_record.r3", "TXTDATA", dnshelper.RecordTypeTXT, false),
+			testAccResourceDNSRecordExists("windns_record.r1", []string{"203.0.113.11", "203.0.113.12"}, dnshelper.RecordTypeA, false),
+			testAccResourceDNSRecordExists("windns_record.r2", []string{"2001:db8::1"}, dnshelper.RecordTypeAAAA, false),
+			testAccResourceDNSRecordExists("windns_record.r3", []string{"TXTDATA"}, dnshelper.RecordTypeTXT, false),
 		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceDNSRecordConfigMultiple,
 				Check: resource.ComposeTestCheckFunc(
-					testAccResourceDNSRecordExists("windns_record.r1", "203.0.113.11", dnshelper.RecordTypeA, true),
-					testAccResourceDNSRecordExists("windns_record.r2", "2001:db8::1", dnshelper.RecordTypeAAAA, true),
-					testAccResourceDNSRecordExists("windns_record.r3", "TXTDATA", dnshelper.RecordTypeTXT, true),
+					testAccResourceDNSRecordExists("windns_record.r1", []string{"203.0.113.11", "203.0.113.12"}, dnshelper.RecordTypeA, true),
+					testAccResourceDNSRecordExists("windns_record.r2", []string{"2001:db8::1"}, dnshelper.RecordTypeAAAA, true),
+					testAccResourceDNSRecordExists("windns_record.r3", []string{"TXTDATA"}, dnshelper.RecordTypeTXT, true),
 				),
 			},
 			{
@@ -341,25 +341,25 @@ func TestAccResourceDNSRecord_MultipleUpdated(t *testing.T) {
 		PreCheck:          func() { testAccPreCheck(t, envVars) },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
-			testAccResourceDNSRecordExists("windns_record.r1", "203.0.113.11", dnshelper.RecordTypeA, false),
-			testAccResourceDNSRecordExists("windns_record.r2", "2001:db8::1", dnshelper.RecordTypeAAAA, false),
-			testAccResourceDNSRecordExists("windns_record.r3", "TXTDATA", dnshelper.RecordTypeTXT, false),
+			testAccResourceDNSRecordExists("windns_record.r1", []string{"203.0.113.11", "203.0.113.12"}, dnshelper.RecordTypeA, false),
+			testAccResourceDNSRecordExists("windns_record.r2", []string{"2001:db8::1"}, dnshelper.RecordTypeAAAA, false),
+			testAccResourceDNSRecordExists("windns_record.r3", []string{"TXTDATA"}, dnshelper.RecordTypeTXT, false),
 		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceDNSRecordConfigMultiple,
 				Check: resource.ComposeTestCheckFunc(
-					testAccResourceDNSRecordExists("windns_record.r1", "203.0.113.11", dnshelper.RecordTypeA, true),
-					testAccResourceDNSRecordExists("windns_record.r2", "2001:db8::1", dnshelper.RecordTypeAAAA, true),
-					testAccResourceDNSRecordExists("windns_record.r3", "TXTDATA", dnshelper.RecordTypeTXT, true),
+					testAccResourceDNSRecordExists("windns_record.r1", []string{"203.0.113.11", "203.0.113.12"}, dnshelper.RecordTypeA, true),
+					testAccResourceDNSRecordExists("windns_record.r2", []string{"2001:db8::1"}, dnshelper.RecordTypeAAAA, true),
+					testAccResourceDNSRecordExists("windns_record.r3", []string{"TXTDATA"}, dnshelper.RecordTypeTXT, true),
 				),
 			},
 			{
 				Config: testAccResourceDNSRecordConfigMultipleUpdated,
 				Check: resource.ComposeTestCheckFunc(
-					testAccResourceDNSRecordExists("windns_record.r1", "203.0.113.21", dnshelper.RecordTypeA, true),
-					testAccResourceDNSRecordExists("windns_record.r2", "2001:db8::2", dnshelper.RecordTypeAAAA, true),
-					testAccResourceDNSRecordExists("windns_record.r3", "UPDATED_DATA", dnshelper.RecordTypeTXT, true),
+					testAccResourceDNSRecordExists("windns_record.r1", []string{"203.0.113.21", "203.0.113.22"}, dnshelper.RecordTypeA, true),
+					testAccResourceDNSRecordExists("windns_record.r2", []string{"2001:db8::2"}, dnshelper.RecordTypeAAAA, true),
+					testAccResourceDNSRecordExists("windns_record.r3", []string{"UPDATED_DATA"}, dnshelper.RecordTypeTXT, true),
 				),
 			},
 		},
@@ -373,13 +373,13 @@ func TestAccResourceDNSRecord_CNAME(t *testing.T) {
 		PreCheck:          func() { testAccPreCheck(t, envVars) },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
-			testAccResourceDNSRecordExists("windns_record.r1", "cname.example.com", dnshelper.RecordTypeCNAME, false),
+			testAccResourceDNSRecordExists("windns_record.r1", []string{"cname.example.com"}, dnshelper.RecordTypeCNAME, false),
 		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceDNSRecordConfigCNAME,
 				Check: resource.ComposeTestCheckFunc(
-					testAccResourceDNSRecordExists("windns_record.r1", "cname.example.com.", dnshelper.RecordTypeCNAME, true),
+					testAccResourceDNSRecordExists("windns_record.r1", []string{"cname.example.com"}, dnshelper.RecordTypeCNAME, true),
 				),
 			},
 			{
@@ -391,7 +391,7 @@ func TestAccResourceDNSRecord_CNAME(t *testing.T) {
 	})
 }
 
-func testAccResourceDNSRecordExists(resource, expectedRecord string, expectedRecordType string, expected bool) resource.TestCheckFunc {
+func testAccResourceDNSRecordExists(resource string, expectedRecords []string, expectedRecordType string, expected bool) resource.TestCheckFunc {
 	ctx := context.Background()
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resource]
@@ -407,21 +407,10 @@ func testAccResourceDNSRecordExists(resource, expectedRecord string, expectedRec
 			return err
 		}
 
-		found := false
-		for _, record := range r.Records {
-			if expectedRecordType == dnshelper.RecordTypeAAAA {
-				if strings.ToLower(expectedRecord) == record {
-					found = true
-				}
-			}
-
-			if expectedRecord == record {
-				found = true
-			}
-		}
+		found := suppressRecordDiffForType(r.Records, expectedRecords, expectedRecordType)
 
 		if !found {
-			return fmt.Errorf("record %s did not contain expected record data %q", r.Id(), expectedRecord)
+			return fmt.Errorf("record %s did not contain expected record data. Found %q, Expected %q", r.Id(), r.Records, expectedRecords)
 		}
 		return nil
 	}
