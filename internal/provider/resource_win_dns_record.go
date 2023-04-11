@@ -16,7 +16,7 @@ import (
 
 func resourceDNSRecord() *schema.Resource {
 	return &schema.Resource{
-		Description: "`windns_record` manages DNS Records in an Windows DNS Server.",
+		Description: "`windns_record` manages DNS Records in a Windows DNS Server.",
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
