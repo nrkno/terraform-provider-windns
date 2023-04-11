@@ -16,7 +16,7 @@ func main() {
 		Debug: debugMode,
 
 		ProviderAddr: "registry.terraform.io/nrkno/windns",
-		ProviderFunc: provider.Provider("0.0.3"),
+		ProviderFunc: provider.Provider("1.0.0"),
 	}
 
 	plugin.Serve(opts)

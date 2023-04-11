@@ -33,7 +33,7 @@ terraform {
   required_providers {
     windns = {
       source  = "nrkno/windns"
-      version = "0.0.3"
+      version = "1.0.0"
     }
   }
 }
