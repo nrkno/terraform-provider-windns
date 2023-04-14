@@ -24,8 +24,12 @@ run into problems with the second hop WinRM when going through a jump host. We h
 This provider avoids the whole second hop concern by using SSH as the transport for the first hop when running PowerShell.
 
 
-## Getting started
+## Usage
 
+Detailed documentation can be found [here](https://registry.terraform.io/providers/nrkno/windns/latest/docs).
+
+
+### Example 
 A minimal terraform configuration:
 
 ```
