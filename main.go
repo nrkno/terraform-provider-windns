@@ -7,6 +7,12 @@ import (
 	"github.com/nrkno/terraform-provider-windns/internal/provider"
 )
 
+var (
+	// these will be set by the goreleaser configuration
+	// to appropriate values for the compiled binary.
+	version = "dev"
+)
+
 func main() {
 	var debugMode bool
 
@@ -16,7 +22,7 @@ func main() {
 		Debug: debugMode,
 
 		ProviderAddr: "registry.terraform.io/nrkno/windns",
-		ProviderFunc: provider.Provider("1.0.0"),
+		ProviderFunc: provider.Provider(version),
 	}
 
 	plugin.Serve(opts)
