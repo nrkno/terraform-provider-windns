@@ -7,11 +7,9 @@ import (
 	"github.com/nrkno/terraform-provider-windns/internal/provider"
 )
 
-var (
-	// these will be set by the goreleaser configuration
-	// to appropriate values for the compiled binary.
-	version = "dev"
-)
+// these will be set by the goreleaser configuration
+// to appropriate values for the compiled binary.
+var version = "dev"
 
 func main() {
 	var debugMode bool
