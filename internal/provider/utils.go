@@ -32,10 +32,18 @@ func suppressRecordDiff(key, old, new string, d *schema.ResourceData) bool {
 	oldRecords := setToStringSlice(oldData.(*schema.Set))
 	newRecords := setToStringSlice(newData.(*schema.Set))
 
+	// prevent (known after apply) to be ignored
+	if len(oldRecords) == 0 && len(newRecords) == 0 {
+		return false
+	}
+
 	return suppressRecordDiffForType(oldRecords, newRecords, rrType)
 }
 
 func suppressRecordDiffForType(oldRecords, newRecords []string, rrType string) bool {
+	slices.Sort(oldRecords)
+	slices.Sort(newRecords)
+
 	if rrType == dnshelper.RecordTypePTR || rrType == dnshelper.RecordTypeCNAME {
 		return suppressDotDiff(oldRecords, newRecords)
 	}
@@ -45,9 +53,6 @@ func suppressRecordDiffForType(oldRecords, newRecords []string, rrType string) b
 // Get-DNSResourceRecord always returns AAAA records in lower case.
 // To avoid change if a user used uppercase, we ignore case.
 func suppressListCaseDiff(oldRecords, newRecords []string) bool {
-	slices.Sort(oldRecords)
-	slices.Sort(newRecords)
-
 	return slices.EqualFunc(oldRecords, newRecords, func(old, new string) bool {
 		return strings.EqualFold(old, new)
 	})
