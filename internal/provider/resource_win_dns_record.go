@@ -45,10 +45,9 @@ func resourceDNSRecord() *schema.Resource {
 				Required:         true,
 				Description:      "A list of records.",
 				DiffSuppressFunc: suppressRecordDiff,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				MinItems: 1,
+				Set:              schema.HashString,
+				Elem:             &schema.Schema{Type: schema.TypeString},
+				MinItems:         1,
 			},
 		},
 		CustomizeDiff: customdiff.All(
