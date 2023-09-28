@@ -27,6 +27,7 @@ type Record struct {
 	HostName   string   `json:"HostName"`
 	RecordType string   `json:"RecordType"`
 	Records    []string `json:"Records"`
+	CreatePtr  bool     `json:"CreatePtr"`
 }
 
 type DNSRecord struct {
@@ -70,6 +71,7 @@ func NewDNSRecordFromResource(d *schema.ResourceData) *Record {
 		ZoneName:   SanitiseTFInput(d, "zone_name"),
 		HostName:   SanitiseTFInput(d, "name"),
 		RecordType: SanitiseTFInput(d, "type"),
+		CreatePtr:  d.Get("create_ptr").(bool),
 		//		TTL:        d.Get("ttl").(int64),
 		Records: records,
 	}
@@ -203,6 +205,10 @@ func (r *Record) addRecordData(conf *config.ProviderConf, recordData string) err
 		cmd = fmt.Sprintf("%s -HostNameAlias %s", cmd, recordData)
 	} else {
 		return fmt.Errorf("record type %s is not supported", r.RecordType)
+	}
+
+	if (r.RecordType == RecordTypeA || r.RecordType == RecordTypeAAAA) && r.CreatePtr {
+		cmd = fmt.Sprintf("%s -CreatePtr", cmd)
 	}
 
 	psOpts := CreatePSCommandOpts{

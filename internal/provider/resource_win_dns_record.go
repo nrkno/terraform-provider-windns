@@ -49,6 +49,11 @@ func resourceDNSRecord() *schema.Resource {
 				Elem:             &schema.Schema{Type: schema.TypeString},
 				MinItems:         1,
 			},
+			"create_ptr": {
+				Type:        schema.TypeBool,
+				Required:    false,
+				Description: "Create PTR records for requested (A or AAAA) records.",
+			},
 		},
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("zone_name", func(ctx context.Context, old, new, meta any) bool {
@@ -75,6 +80,7 @@ func resourceDNSRecordCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error while creating new record object: %s", err)
 	}
 	d.SetId(id)
+
 	return resourceDNSRecordRead(ctx, d, meta)
 }
 
@@ -97,6 +103,7 @@ func resourceDNSRecordRead(ctx context.Context, d *schema.ResourceData, meta int
 	_ = d.Set("name", record.HostName)
 	_ = d.Set("type", record.RecordType)
 	_ = d.Set("records", record.Records)
+	_ = d.Set("create_ptr", record.CreatePtr)
 
 	return nil
 }
