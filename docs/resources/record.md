@@ -22,6 +22,10 @@ description: |-
 - `type` (String) The type of the dns records. (AAAA, A, CNAME, TXT or PTR)
 - `zone_name` (String) The zone name for the dns records.
 
+### Optional
+
+- `create_ptr` (Boolean) Create PTR records for requested (A or AAAA) records.
+
 ### Read-Only
 
 - `id` (String) The ID of this resource.
