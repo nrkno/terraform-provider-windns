@@ -165,7 +165,9 @@ func (r *Record) Update(ctx context.Context, conf *config.ProviderConf, changes 
 	if err != nil {
 		return err
 	}
-
+	if changes["records"] == nil {
+		return nil
+	}
 	var records []string
 	expectedRecords := changes["records"].(*schema.Set)
 
