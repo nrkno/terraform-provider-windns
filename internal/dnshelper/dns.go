@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 package dnshelper
 
 import (
@@ -80,6 +82,8 @@ func GetDNSRecordFromId(ctx context.Context, conf *config.ProviderConf, id strin
 	hostName := idComponents[0]
 	zoneName := idComponents[1]
 	recordType := idComponents[2]
+
+	// TODO better error handling here. Test import.
 
 	cmd := fmt.Sprintf("Get-DnsServerResourceRecord -ZoneName %s -Name %s -RRType %s", zoneName, hostName, recordType)
 
