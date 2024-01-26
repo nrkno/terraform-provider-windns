@@ -3,7 +3,7 @@ module github.com/nrkno/terraform-provider-windns
 go 1.20
 
 require (
-	github.com/hashicorp/terraform-plugin-log v0.8.0
+	github.com/hashicorp/terraform-plugin-log v0.9.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.26.1
 	github.com/masterzen/winrm v0.0.0-20220917170901-b07f6cb0598d
 	github.com/melbahja/goph v1.3.1
