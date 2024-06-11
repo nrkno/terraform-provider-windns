@@ -1,6 +1,8 @@
 module github.com/nrkno/terraform-provider-windns
 
-go 1.20
+go 1.22
+
+toolchain go1.22.1
 
 require (
 	github.com/hashicorp/terraform-plugin-log v0.9.0
