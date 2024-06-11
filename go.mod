@@ -11,7 +11,7 @@ require (
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	golang.org/x/vuln v1.0.0
 	honnef.co/go/tools v0.4.7
-	mvdan.cc/gofumpt v0.5.0
+	mvdan.cc/gofumpt v0.6.0
 )
 
 require (
@@ -72,7 +72,7 @@ require (
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
-	golang.org/x/tools v0.13.0 // indirect
+	golang.org/x/tools v0.17.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240227224415-6ceb2ff114de // indirect
 	google.golang.org/grpc v1.63.2 // indirect
