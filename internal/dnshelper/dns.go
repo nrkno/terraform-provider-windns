@@ -84,15 +84,14 @@ func GetDNSRecordFromId(ctx context.Context, conf *config.ProviderConf, id strin
 	zoneName := idComponents[1]
 	recordType := idComponents[2]
 	createPtr, err := strconv.ParseBool("false")
-	
-	if (len(idComponents) > 3) {
-		// var err error = nil;
+
+	if len(idComponents) > 3 {
 		createPtr, err = strconv.ParseBool(idComponents[3])
 	}
-	if (err != nil) {
-		return nil, fmt.Errorf("Unknown state for createPtr: %s", err)
+	if err != nil {
+		return nil, fmt.Errorf("unknown state for createPtr: %s", err)
 	}
-	
+
 	cmd := fmt.Sprintf("Get-DnsServerResourceRecord -ZoneName %s -Name %s -RRType %s", zoneName, hostName, recordType)
 
 	conn, err := conf.AcquireSshClient()

@@ -52,7 +52,7 @@ func resourceDNSRecord() *schema.Resource {
 			"create_ptr": {
 				Type:        schema.TypeBool,
 				Required:    false,
-				Optional:    true,	
+				Optional:    true,
 				Description: "Create PTR records for requested (A or AAAA) records.",
 			},
 		},
