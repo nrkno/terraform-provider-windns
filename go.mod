@@ -10,7 +10,7 @@ require (
 	github.com/melbahja/goph v1.4.0
 	golang.org/x/crypto v0.37.0
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
-	golang.org/x/vuln v1.1.2
+	golang.org/x/vuln v1.1.4
 	honnef.co/go/tools v0.6.1
 	mvdan.cc/gofumpt v0.6.0
 )
