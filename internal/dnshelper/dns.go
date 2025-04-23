@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -29,6 +30,7 @@ type Record struct {
 	HostName   string   `json:"HostName"`
 	RecordType string   `json:"RecordType"`
 	Records    []string `json:"Records"`
+	CreatePtr  bool     `json:"CreatePtr"`
 }
 
 type DNSRecord struct {
@@ -56,7 +58,7 @@ type TTL struct {
 
 // windns has no concept of primary key so we need to create one based on inputs
 func (r *Record) Id() string {
-	return strings.Join([]string{r.HostName, r.ZoneName, r.RecordType}, IDSeparator)
+	return strings.Join([]string{r.HostName, r.ZoneName, r.RecordType, strconv.FormatBool(r.CreatePtr)}, IDSeparator)
 }
 
 // NewDNSRecordFromResource returns a new Record struct populated from resource data
@@ -72,6 +74,7 @@ func NewDNSRecordFromResource(d *schema.ResourceData) *Record {
 		ZoneName:   SanitiseTFInput(d, "zone_name"),
 		HostName:   SanitiseTFInput(d, "name"),
 		RecordType: SanitiseTFInput(d, "type"),
+		CreatePtr:  d.Get("create_ptr").(bool),
 		//		TTL:        d.Get("ttl").(int64),
 		Records: records,
 	}
@@ -82,6 +85,14 @@ func GetDNSRecordFromId(ctx context.Context, conf *config.ProviderConf, id strin
 	hostName := idComponents[0]
 	zoneName := idComponents[1]
 	recordType := idComponents[2]
+	createPtr, err := strconv.ParseBool("false")
+
+	if len(idComponents) > 3 {
+		createPtr, err = strconv.ParseBool(idComponents[3])
+	}
+	if err != nil {
+		return nil, fmt.Errorf("unknown state for createPtr: %s", err)
+	}
 
 	// TODO better error handling here. Test import.
 
@@ -118,6 +129,7 @@ func GetDNSRecordFromId(ctx context.Context, conf *config.ProviderConf, id strin
 	}
 
 	record.ZoneName = zoneName
+	record.CreatePtr = createPtr
 	return record, nil
 }
 
@@ -156,7 +168,9 @@ func (r *Record) Update(ctx context.Context, conf *config.ProviderConf, changes 
 	if err != nil {
 		return err
 	}
-
+	if changes["records"] == nil {
+		return nil
+	}
 	var records []string
 	expectedRecords := changes["records"].(*schema.Set)
 
@@ -207,6 +221,10 @@ func (r *Record) addRecordData(conf *config.ProviderConf, recordData string) err
 		cmd = fmt.Sprintf("%s -HostNameAlias %s", cmd, recordData)
 	} else {
 		return fmt.Errorf("record type %s is not supported", r.RecordType)
+	}
+
+	if (r.RecordType == RecordTypeA || r.RecordType == RecordTypeAAAA) && r.CreatePtr {
+		cmd = fmt.Sprintf("%s -CreatePtr", cmd)
 	}
 
 	psOpts := CreatePSCommandOpts{

@@ -20,6 +20,7 @@ Prerequisites for acceptance tests
 - A Windows DNS server with the following zones configured:
 	- example.com
 	- 10.10.in-addr.arpa
+	- 8.b.d.0.1.0.0.2.ip6.arpa
 - A Windows server with SSH enabled and the Powershell DnsServer module installed.
 	- This could be the same as running the DNS server, or another to jump through.
 */
@@ -46,10 +47,11 @@ const testAccResourceDNSRecordConfigBasicA = `
 variable "windns_record_name" {}
 
 resource "windns_record" "r1" {
-  name      = var.windns_record_name
-  zone_name = "example.com"
-  type      = "A"
-  records   = ["203.0.113.11", "203.0.113.12"]
+  name       = var.windns_record_name
+  zone_name  = "example.com"
+  type       = "A"
+  records    = ["203.0.113.11", "203.0.113.12"]
+  create_ptr = true
 }
 `
 
@@ -57,10 +59,11 @@ const testAccResourceDNSRecordConfigBasicAAAA = `
 variable "windns_record_name" {}
 
 resource "windns_record" "r1" {
-  name      = var.windns_record_name
-  zone_name = "example.com"
-  type      = "AAAA"
-  records   = ["2001:db8::1", "2001:db8::2"]
+  name       = var.windns_record_name
+  zone_name  = "example.com"
+  type       = "AAAA"
+  records    = ["2001:db8::1", "2001:db8::2"]
+  create_ptr = true
 }
 `
 
