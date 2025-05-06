@@ -5,6 +5,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -85,7 +86,7 @@ resource "windns_record" "r1" {
   name      = var.windns_record_name
   zone_name = "example.com"
   type      = "TXT"
-  records   = ["TxTdAtA"]
+  records   = ["TxTdATa9 &!#$%&'()*+,-./:;<=>?@[]^_{|}~"]
 }
 `
 
@@ -145,6 +146,17 @@ variable "windns_record_name" {}
 resource "windns_record" "r1" {
   name      = var.windns_record_name
   zone_name = "example.com"
+  type      = "CNAME"
+  records   = ["cname.example.com"]
+}
+`
+
+const testAccResourceDNSRecordConfigIllegalCharacter = `
+variable "windns_record_name" {}
+
+resource "windns_record" "r1" {
+  name      = var.windns_record_name
+  zone_name = "example.com;"
   type      = "CNAME"
   records   = ["cname.example.com"]
 }
@@ -282,13 +294,13 @@ func TestAccResourceDNSRecord_BasicTXT(t *testing.T) {
 		PreCheck:          func() { testAccPreCheck(t, envVars) },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
-			testAccResourceDNSRecordExists("windns_record.r1", []string{"TxTdAtA"}, dnshelper.RecordTypeTXT, false),
+			testAccResourceDNSRecordExists("windns_record.r1", []string{"TxTdATa9 &!#$%&'()*+,-./:;<=>?@[]^_{|}~"}, dnshelper.RecordTypeTXT, false),
 		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceDNSRecordConfigBasicTXT,
 				Check: resource.ComposeTestCheckFunc(
-					testAccResourceDNSRecordExists("windns_record.r1", []string{"TxTdAtA"}, dnshelper.RecordTypeTXT, true),
+					testAccResourceDNSRecordExists("windns_record.r1", []string{"TxTdATa9 &!#$%&'()*+,-./:;<=>?@[]^_{|}~"}, dnshelper.RecordTypeTXT, true),
 				),
 			},
 			{
@@ -391,6 +403,24 @@ func TestAccResourceDNSRecord_CNAME(t *testing.T) {
 				ResourceName:      "windns_record.r1",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccResourceDNSRecord_IllegalCharacter(t *testing.T) {
+	envVars := []string{"TF_VAR_windns_record_name"}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t, envVars) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccResourceDNSRecordExists("windns_record.r1", []string{"cname.example.com"}, dnshelper.RecordTypeCNAME, false),
+		),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccResourceDNSRecordConfigIllegalCharacter,
+				ExpectError: regexp.MustCompile(".*invalid characters detected in input.*"),
 			},
 		},
 	})

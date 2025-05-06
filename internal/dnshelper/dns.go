@@ -62,22 +62,40 @@ func (r *Record) Id() string {
 }
 
 // NewDNSRecordFromResource returns a new Record struct populated from resource data
-func NewDNSRecordFromResource(d *schema.ResourceData) *Record {
+func NewDNSRecordFromResource(d *schema.ResourceData) (*Record, error) {
 	var records []string
 	recordsSet := d.Get("records").(*schema.Set)
+	recordType := d.Get("type").(string)
 
 	for _, v := range recordsSet.List() {
-		records = append(records, SanitiseString(v.(string)))
+		sanitizedInput, err := SanitizeInputString(recordType, v.(string))
+		if err != nil {
+			return nil, err
+		}
+		records = append(records, sanitizedInput)
+	}
+
+	sanitizedZoneName, err := SanitiseTFInput(d, "zone_name")
+	if err != nil {
+		return nil, err
+	}
+	sanitizedHostName, err := SanitiseTFInput(d, "name")
+	if err != nil {
+		return nil, err
+	}
+	sanitizedRecordType, err := SanitiseTFInput(d, "type")
+	if err != nil {
+		return nil, err
 	}
 
 	return &Record{
-		ZoneName:   SanitiseTFInput(d, "zone_name"),
-		HostName:   SanitiseTFInput(d, "name"),
-		RecordType: SanitiseTFInput(d, "type"),
+		ZoneName:   sanitizedZoneName,
+		HostName:   sanitizedHostName,
+		RecordType: sanitizedRecordType,
 		CreatePtr:  d.Get("create_ptr").(bool),
 		//		TTL:        d.Get("ttl").(int64),
 		Records: records,
-	}
+	}, nil
 }
 
 func GetDNSRecordFromId(ctx context.Context, conf *config.ProviderConf, id string) (*Record, error) {
@@ -175,7 +193,11 @@ func (r *Record) Update(ctx context.Context, conf *config.ProviderConf, changes 
 	expectedRecords := changes["records"].(*schema.Set)
 
 	for _, v := range expectedRecords.List() {
-		records = append(records, SanitiseString(v.(string)))
+		sanitizedInput, err := SanitizeInputString(existing.RecordType, v.(string))
+		if err != nil {
+			return err
+		}
+		records = append(records, sanitizedInput)
 	}
 
 	toAdd, toRemove := diffRecordLists(records, existing.Records)
@@ -214,7 +236,7 @@ func (r *Record) addRecordData(conf *config.ProviderConf, recordData string) err
 	} else if r.RecordType == RecordTypeAAAA {
 		cmd = fmt.Sprintf("%s -IPv6Address %s", cmd, strings.ToLower(recordData))
 	} else if r.RecordType == RecordTypeTXT {
-		cmd = fmt.Sprintf("%s -DescriptiveText %s", cmd, recordData)
+		cmd = fmt.Sprintf("%s -DescriptiveText \"%s\"", cmd, recordData)
 	} else if r.RecordType == RecordTypePTR {
 		cmd = fmt.Sprintf("%s -PtrDomainName %s", cmd, recordData)
 	} else if r.RecordType == RecordTypeCNAME {
@@ -249,7 +271,8 @@ func (r *Record) addRecordData(conf *config.ProviderConf, recordData string) err
 }
 
 func (r *Record) removeRecordData(conf *config.ProviderConf, recordData string) error {
-	cmd := fmt.Sprintf("Remove-DnsServerResourceRecord -Force -ZoneName %s -RRType %s -Name %s -RecordData %s", r.ZoneName, r.RecordType, r.HostName, recordData)
+	cmd := fmt.Sprintf("Remove-DnsServerResourceRecord -Force -ZoneName %s -RRType %s -Name %s -RecordData \"%s\"", r.ZoneName, r.RecordType, r.HostName, recordData)
+
 	conn, err := conf.AcquireSshClient()
 	if err != nil {
 		return fmt.Errorf("while acquiring ssh client: %s", err)

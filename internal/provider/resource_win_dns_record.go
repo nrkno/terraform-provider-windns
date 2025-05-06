@@ -76,7 +76,10 @@ func resourceDNSRecord() *schema.Resource {
 }
 
 func resourceDNSRecordCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	record := dnshelper.NewDNSRecordFromResource(d)
+	record, err := dnshelper.NewDNSRecordFromResource(d)
+	if err != nil {
+		return diag.Errorf("error when mapping input data: %s", err)
+	}
 
 	id, err := record.Create(meta.(*config.ProviderConf))
 	if err != nil {
@@ -112,7 +115,10 @@ func resourceDNSRecordRead(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func resourceDNSRecordUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	record := dnshelper.NewDNSRecordFromResource(d)
+	record, err := dnshelper.NewDNSRecordFromResource(d)
+	if err != nil {
+		return diag.Errorf("error when mapping input data: %s", err)
+	}
 	keys := []string{"records"}
 	changes := make(map[string]interface{})
 	for _, key := range keys {
@@ -121,7 +127,7 @@ func resourceDNSRecordUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	err := record.Update(ctx, meta.(*config.ProviderConf), changes)
+	err = record.Update(ctx, meta.(*config.ProviderConf), changes)
 	if err != nil {
 		return diag.Errorf("error while updating record with id %q: %s", d.Id(), err)
 	}
@@ -132,8 +138,12 @@ func resourceDNSRecordDelete(ctx context.Context, d *schema.ResourceData, meta i
 	if d.Id() == "" {
 		return nil
 	}
-	record := dnshelper.NewDNSRecordFromResource(d)
-	err := record.Delete(meta.(*config.ProviderConf))
+	record, err := dnshelper.NewDNSRecordFromResource(d)
+	if err != nil {
+		return diag.Errorf("error when mapping input data: %s", err)
+	}
+
+	err = record.Delete(meta.(*config.ProviderConf))
 	if err != nil {
 		return diag.Errorf("error while deleting a record object with id %q: %s", d.Id(), err)
 	}
