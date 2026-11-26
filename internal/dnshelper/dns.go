@@ -5,8 +5,10 @@ package dnshelper
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net"
 	"strconv"
 	"strings"
 
@@ -46,8 +48,9 @@ type RecordData struct {
 	CimInstanceProperties []CimInstanceProperties `json:"CimInstanceProperties"`
 }
 
-// The structure we get from powershell contains more fields, but we're only interested in the Value.
+// The structure we get from powershell contains more fields, but we're only interested in the Name and Value.
 type CimInstanceProperties struct {
+	Name  string `json:"Name"`
 	Value string `json:"value"`
 }
 
@@ -320,7 +323,10 @@ func unmarshallRecord(ctx context.Context, input []byte) (*Record, error) {
 
 	var rs []string
 	for _, v := range records {
-		recordData := v.RecordData.CimInstanceProperties[0].Value
+		recordData, err := recordDataValue(v.RecordType, v.RecordData.CimInstanceProperties)
+		if err != nil {
+			return nil, fmt.Errorf("record %q: %s", v.HostName, err)
+		}
 		rs = append(rs, recordData)
 	}
 
@@ -332,6 +338,61 @@ func unmarshallRecord(ctx context.Context, input []byte) (*Record, error) {
 	}
 
 	return &record, nil
+}
+
+// recordDataProperty maps a record type to the CIM property holding its data.
+var recordDataProperty = map[string]string{
+	RecordTypeA:     "IPv4Address",
+	RecordTypeAAAA:  "IPv6Address",
+	RecordTypeCNAME: "HostNameAlias",
+	RecordTypePTR:   "PtrDomainName",
+	RecordTypeTXT:   "DescriptiveText",
+}
+
+// recordDataValue extracts the record data from the CimInstanceProperties returned by
+// Get-DnsServerResourceRecord. The property is selected by name for the record type, falling
+// back to the first property (the previous behaviour) if no matching name is found.
+// Some DNS servers (observed on Windows Server 2025) return A/AAAA data as a raw hex string,
+// e.g. "C0A80001" instead of "192.168.0.1"; such values are normalized to their textual form.
+func recordDataValue(recordType string, props []CimInstanceProperties) (string, error) {
+	if len(props) == 0 {
+		return "", fmt.Errorf("no record data returned")
+	}
+
+	value := props[0].Value
+	if name, ok := recordDataProperty[recordType]; ok {
+		for _, p := range props {
+			if strings.EqualFold(p.Name, name) {
+				value = p.Value
+				break
+			}
+		}
+	}
+
+	return normalizeRecordData(recordType, value), nil
+}
+
+// normalizeRecordData converts hex-encoded A/AAAA record data into textual IP form.
+// Values that are not hex-encoded are returned unchanged.
+func normalizeRecordData(recordType string, value string) string {
+	var size int
+	switch recordType {
+	case RecordTypeA:
+		size = net.IPv4len
+	case RecordTypeAAAA:
+		size = net.IPv6len
+	default:
+		return value
+	}
+
+	if len(value) != size*2 {
+		return value
+	}
+	raw, err := hex.DecodeString(value)
+	if err != nil {
+		return value
+	}
+	return net.IP(raw).String()
 }
 
 func recordExistsInList(r string, list []string) bool {
